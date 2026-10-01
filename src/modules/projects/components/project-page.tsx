@@ -4,22 +4,26 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Crumbs } from "@/components/brand/crumbs";
 import { ConfirmDialog } from "@/components/brand/confirm-dialog";
-import { PlusIcon } from "@/components/brand/icons";
+import { PencilIcon, PlusIcon } from "@/components/brand/icons";
 import { EmptyState } from "@/components/brand/empty-state";
 import { canCreateIn, inWs, manages } from "@/lib/permissions";
+import { usePageTitle } from "@/lib/title";
 import { danger, mute, primary } from "@/lib/styles";
 import { useVault } from "@/lib/store";
 import { EnvCard } from "@/modules/envs/components/env-card";
 import { NewEnvModal } from "@/modules/envs/components/new-env-modal";
+import { NewProjectModal } from "@/modules/projects/components/new-project-modal";
 
 export function ProjectPage() {
   const params = useParams<{ workspaceId: string; projectId: string }>();
   const router = useRouter();
   const { ready, db, me, deleteProject, toast } = useVault();
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const workspace = db.workspaces.find((item) => item.id === params.workspaceId);
   const project = db.projects.find((item) => item.id === params.projectId && item.ws === params.workspaceId);
+  usePageTitle(project?.name);
 
   useEffect(() => {
     if (!ready || !me) return;
@@ -42,7 +46,19 @@ export function ProjectPage() {
       />
       <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-2xl font-extrabold break-words">{project.name}</h1>
+          <div className="flex items-start gap-1">
+            <h1 className="text-2xl font-extrabold break-words">{project.name}</h1>
+            {canManage ? (
+              <button
+                type="button"
+                aria-label="Edit project"
+                className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#8c959f] hover:bg-[#eff2f5] hover:text-fg dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-100"
+                onClick={() => setEditing(true)}
+              >
+                <PencilIcon />
+              </button>
+            ) : null}
+          </div>
           <p className={`mt-1 text-sm break-words ${mute}`}>{project.desc || "No description"}</p>
         </div>
         <div className="flex w-full flex-wrap gap-2 text-sm font-medium sm:w-auto">
@@ -72,6 +88,7 @@ export function ProjectPage() {
         />
       )}
       <NewEnvModal open={open} onClose={() => setOpen(false)} projectId={project.id} />
+      <NewProjectModal open={editing} onClose={() => setEditing(false)} workspaceId={workspace.id} project={project} />
       <ConfirmDialog
         open={confirmDelete}
         title="Delete project"

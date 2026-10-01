@@ -4,15 +4,18 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Crumbs } from "@/components/brand/crumbs";
 import { ConfirmDialog } from "@/components/brand/confirm-dialog";
-import { PlusIcon } from "@/components/brand/icons";
+import { PencilIcon, PlusIcon } from "@/components/brand/icons";
 import { EmptyState } from "@/components/brand/empty-state";
 import { dispName } from "@/lib/format";
 import { inWs, manages } from "@/lib/permissions";
+import { usePageTitle } from "@/lib/title";
 import { danger, mute, primary } from "@/lib/styles";
 import { useVault } from "@/lib/store";
 import { NewProjectModal } from "@/modules/projects/components/new-project-modal";
 import { ProjectCard } from "@/modules/projects/components/project-card";
+import { AuditLog } from "@/modules/workspaces/components/audit-log";
 import { InvitePanel } from "@/modules/workspaces/components/invite-panel";
+import { NewWorkspaceModal } from "@/modules/workspaces/components/new-workspace-modal";
 import { MemberList } from "@/modules/workspaces/components/member-list";
 
 export function WorkspacePage() {
@@ -21,9 +24,13 @@ export function WorkspacePage() {
   const router = useRouter();
   const { ready, db, me, deleteWorkspace, toast } = useVault();
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const workspace = db.workspaces.find((item) => item.id === params.workspaceId);
-  const tab = searchParams.get("tab") === "members" ? "members" : "projects";
+  usePageTitle(workspace?.name);
+  const canManage = Boolean(me && workspace && manages(me, workspace));
+  const requested = searchParams.get("tab");
+  const tab = requested === "members" ? "members" : canManage && requested === "audit" ? "audit" : "projects";
 
   useEffect(() => {
     if (!ready || !me) return;
@@ -34,10 +41,9 @@ export function WorkspacePage() {
 
   const projects = db.projects.filter((project) => project.ws === workspace.id);
   const envCount = db.envs.filter((env) => env.ws === workspace.id).length;
-  const canManage = manages(me, workspace);
 
-  function setTab(next: "projects" | "members") {
-    const query = next === "members" ? "?tab=members" : "";
+  function setTab(next: "projects" | "members" | "audit") {
+    const query = next === "projects" ? "" : `?tab=${next}`;
     router.replace(`/workspaces/${workspace!.id}${query}`);
   }
 
@@ -46,7 +52,19 @@ export function WorkspacePage() {
       <Crumbs items={[{ href: "/workspaces", label: "Workspaces" }, { label: workspace.name }]} />
       <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-2xl font-extrabold break-words">{workspace.name}</h1>
+          <div className="flex items-start gap-1">
+            <h1 className="text-2xl font-extrabold break-words">{workspace.name}</h1>
+            {canManage ? (
+              <button
+                type="button"
+                aria-label="Edit workspace"
+                className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#8c959f] hover:bg-[#eff2f5] hover:text-fg dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-100"
+                onClick={() => setEditing(true)}
+              >
+                <PencilIcon />
+              </button>
+            ) : null}
+          </div>
           <p className={`mt-1 text-sm break-words ${mute}`}>
             {workspace.desc || "No description"} · PM: {dispName(db.users, workspace.pm)}
           </p>
@@ -71,6 +89,7 @@ export function WorkspacePage() {
           [
             ["projects", `Projects (${projects.length})`],
             ["members", `Members (${workspace.members.length + 1})`],
+            ...(canManage ? [["audit", `Audit (${(db.audits ?? []).filter((entry) => entry.ws === workspace.id).length})`] as const] : []),
           ] as const
         ).map(([key, label]) => (
           <button
@@ -97,13 +116,16 @@ export function WorkspacePage() {
             text={canManage ? "Create a project, then add env files inside it." : "The project manager adds projects. Envs live inside a project."}
           />
         )
-      ) : (
+      ) : tab === "members" ? (
         <div className="mt-6 grid gap-6 lg:grid-cols-5">
           <MemberList workspace={workspace} canManage={canManage} />
           <InvitePanel workspace={workspace} />
         </div>
+      ) : (
+        <AuditLog workspace={workspace} />
       )}
       <NewProjectModal open={open} onClose={() => setOpen(false)} workspaceId={workspace.id} />
+      <NewWorkspaceModal open={editing} onClose={() => setEditing(false)} workspace={workspace} />
       <ConfirmDialog
         open={confirmDelete}
         title="Delete workspace"

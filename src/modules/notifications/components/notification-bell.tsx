@@ -73,7 +73,7 @@ export function NotificationBell({ open, onOpenChange }: { open: boolean; onOpen
                   return (
                     <div key={note.id} className="border-b border-[#eaeef2] px-4 py-3 last:border-0 dark:border-ink-700">
                       <p className="text-sm">
-                        <b>{dispName(db.users, note.from)}</b> invited you to join <b>{workspaceName}</b>
+                        <b>{dispName(db.users, note.from)}</b> invited you to join <b>{workspaceName}</b> with {note.access === "edit" ? "edit" : "view"} access
                       </p>
                       <p className={`mt-0.5 text-xs ${mute}`}>{ago(note.at)}</p>
                       <div className="mt-2 flex gap-2 text-xs font-semibold">

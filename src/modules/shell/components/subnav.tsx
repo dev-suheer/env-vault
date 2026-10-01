@@ -11,7 +11,8 @@ export function Subnav() {
   if (!me) return null;
 
   let active = pathname.startsWith("/profile") ? "" : "workspaces";
-  if (pathname.startsWith("/users")) active = "users";
+  if (pathname.startsWith("/dashboard")) active = "dashboard";
+  else if (pathname.startsWith("/users")) active = "users";
   else if (pathname === "/envs") active = "personal";
   else if (pathname.startsWith("/envs/")) {
     const id = pathname.split("/")[2];

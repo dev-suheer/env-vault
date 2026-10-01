@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import { WorkspaceList } from "@/modules/workspaces/components/workspace-list";
+
+export const metadata: Metadata = {
+  title: "Workspaces",
+};
 
 export default function WorkspacesPage() {
   return <WorkspaceList />;

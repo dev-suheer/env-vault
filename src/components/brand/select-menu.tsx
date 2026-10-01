@@ -8,11 +8,13 @@ export function SelectMenu<T extends string>({
   options,
   onChange,
   label,
+  className = "mt-1",
 }: {
   value: T;
   options: readonly T[];
   onChange: (value: T) => void;
   label: string;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(options.indexOf(value));
@@ -66,7 +68,7 @@ export function SelectMenu<T extends string>({
   }
 
   return (
-    <div ref={rootRef} className="relative mt-1">
+    <div ref={rootRef} className={`relative ${className}`}>
       <button
         type="button"
         aria-haspopup="listbox"

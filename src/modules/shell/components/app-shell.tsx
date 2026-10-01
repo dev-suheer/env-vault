@@ -6,23 +6,24 @@ import { useVault } from "@/lib/store";
 import { AppHeader } from "@/modules/shell/components/app-header";
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { ready, me } = useVault();
+  const { ready, me, logout } = useVault();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     if (!ready) return;
-    if (!me) {
+    if (!me || me.active === false) {
+      if (me?.active === false) logout();
       router.replace("/");
       return;
     }
     if (pathname === "/envs" && me.role !== "dev") router.replace("/workspaces");
-    if (pathname.startsWith("/users") && me.role !== "admin") router.replace("/workspaces");
-  }, [ready, me, pathname, router]);
+    if ((pathname.startsWith("/users") || pathname.startsWith("/dashboard")) && me.role !== "admin") router.replace("/workspaces");
+  }, [ready, me, pathname, router, logout]);
 
-  if (!ready || !me) return <div className="min-h-dvh" />;
+  if (!ready || !me || me.active === false) return <div className="min-h-dvh" />;
   if (pathname === "/envs" && me.role !== "dev") return <div className="min-h-dvh" />;
-  if (pathname.startsWith("/users") && me.role !== "admin") return <div className="min-h-dvh" />;
+  if ((pathname.startsWith("/users") || pathname.startsWith("/dashboard")) && me.role !== "admin") return <div className="min-h-dvh" />;
 
   return (
     <div className="min-h-dvh">

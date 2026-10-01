@@ -24,6 +24,13 @@ export function dispName(users: { email: string; name: string }[], email: string
   return users.find((user) => user.email === email)?.name || nameOf(email);
 }
 
+export function deviceLabel(agent: string) {
+  if (!agent) return "Unknown device";
+  const browser = /Edg\//.test(agent) ? "Edge" : /Chrome\//.test(agent) ? "Chrome" : /Firefox\//.test(agent) ? "Firefox" : /Safari\//.test(agent) ? "Safari" : "Browser";
+  const os = /iPhone|iPad/.test(agent) ? "iOS" : /Android/.test(agent) ? "Android" : /Mac OS X/.test(agent) ? "macOS" : /Windows/.test(agent) ? "Windows" : /Linux/.test(agent) ? "Linux" : "Unknown OS";
+  return `${browser} on ${os}`;
+}
+
 export function plural(count: number, word: string) {
   return `${count} ${word}${count === 1 ? "" : "s"}`;
 }

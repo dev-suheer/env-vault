@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { UserPhoto } from "@/components/brand/avatar";
 import { LogoMark, SignOutIcon, UserIcon } from "@/components/brand/icons";
 import { RoleChip } from "@/components/brand/role-chip";
 import { ROLE } from "@/lib/brand";
-import { initOf } from "@/lib/format";
 import { homePath } from "@/lib/permissions";
 import { mute } from "@/lib/styles";
 import { useVault } from "@/lib/store";
@@ -62,17 +62,15 @@ export function AppHeader() {
               aria-haspopup="true"
               aria-expanded={profileOpen}
               title="Account"
-              className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white ring-2 ring-transparent transition hover:ring-brand-500/40"
+              className="rounded-full ring-2 ring-transparent transition hover:ring-brand-500/40"
               onClick={() => setMenu((value) => (value === "profile" ? null : "profile"))}
             >
-              {initOf(me.name)}
+              <UserPhoto name={me.name} image={me.image} className="h-9 w-9 text-sm" />
             </button>
             {profileOpen ? (
               <div className="fade surface absolute right-0 top-11 z-30 w-64 max-w-[calc(100vw-2rem)] rounded-xl border border-line bg-white p-2 dark:border-ink-700 dark:bg-ink-900">
                 <div className="flex items-center gap-3 p-2">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 font-bold text-white">
-                    {initOf(me.name)}
-                  </span>
+                  <UserPhoto name={me.name} image={me.image} className="h-10 w-10 text-sm" />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-bold">{me.name}</p>
                     <p className={`truncate text-xs ${mute}`}>{me.email}</p>

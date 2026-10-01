@@ -21,7 +21,8 @@ export function canView(me: User, env: EnvFile, db: DB) {
 export function canEdit(me: User, env: EnvFile, db: DB) {
   if (!env.ws) return env.owner === me.email;
   const workspace = db.workspaces.find((item) => item.id === env.ws);
-  return me.role === "admin" || env.owner === me.email || workspace?.pm === me.email;
+  if (!workspace) return false;
+  return me.role === "admin" || env.owner === me.email || workspace.pm === me.email || workspace.editors?.includes(me.email) === true;
 }
 
 export function myWorkspaces(me: User, db: DB) {
@@ -29,7 +30,9 @@ export function myWorkspaces(me: User, db: DB) {
 }
 
 export function homePath(role: Role) {
-  return role === "dev" ? "/envs" : "/workspaces";
+  if (role === "dev") return "/envs";
+  if (role === "admin") return "/dashboard";
+  return "/workspaces";
 }
 
 export function tabsFor(role: Role) {
@@ -43,6 +46,7 @@ export function tabsFor(role: Role) {
     return [{ href: "/workspaces", key: "workspaces", label: "Workspaces" }];
   }
   return [
+    { href: "/dashboard", key: "dashboard", label: "Dashboard" },
     { href: "/workspaces", key: "workspaces", label: "Workspaces" },
     { href: "/users", key: "users", label: "Users" },
   ];

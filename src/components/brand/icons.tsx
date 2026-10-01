@@ -62,6 +62,35 @@ export function UserIcon({ className = "h-4 w-4" }: IconProps) {
   );
 }
 
+export function TrashIcon({ className = "h-4 w-4", strokeWidth = 2 }: IconProps) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" strokeWidth={strokeWidth} viewBox="0 0 24 24" aria-hidden>
+      <path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13" />
+      <path d="M10 11v6M14 11v6" />
+    </svg>
+  );
+}
+
+export function PencilIcon({ className = "h-4 w-4", strokeWidth = 2 }: IconProps) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" strokeWidth={strokeWidth} viewBox="0 0 24 24" aria-hidden>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
+    </svg>
+  );
+}
+
+export function EyeOffIcon({ className = "h-4 w-4", strokeWidth = 2 }: IconProps) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" strokeWidth={strokeWidth} viewBox="0 0 24 24" aria-hidden>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 10.6a3 3 0 004.2 4.2" />
+      <path d="M9.9 5.2A10.7 10.7 0 0112 5c6.4 0 10 7 10 7a18.5 18.5 0 01-3.1 4.1" />
+      <path d="M6.1 6.1C3.7 7.9 2 12 2 12s3.6 7 10 7a10.8 10.8 0 004.2-.9" />
+    </svg>
+  );
+}
+
 export function EyeIcon({ className = "mt-0.5 h-4 w-4 shrink-0" }: IconProps) {
   return (
     <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden>

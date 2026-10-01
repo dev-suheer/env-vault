@@ -4,14 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Crumbs } from "@/components/brand/crumbs";
 import { ConfirmDialog } from "@/components/brand/confirm-dialog";
-import { EyeIcon } from "@/components/brand/icons";
+import { EyeIcon, PencilIcon } from "@/components/brand/icons";
 import { EnvChip } from "@/components/brand/env-chip";
 import { dispName } from "@/lib/format";
 import { canEdit, canView, homePath } from "@/lib/permissions";
+import { usePageTitle } from "@/lib/title";
 import { btn, card, danger, input, mute } from "@/lib/styles";
 import { useVault } from "@/lib/store";
 import { copyText, downloadEnv, parseEnv, toEnv } from "@/modules/envs/lib/env-file";
 import { ImportPanel } from "@/modules/envs/components/import-panel";
+import { NewEnvModal } from "@/modules/envs/components/new-env-modal";
 import { VariableRow } from "@/modules/envs/components/variable-row";
 
 export function EnvEditor() {
@@ -19,8 +21,10 @@ export function EnvEditor() {
   const router = useRouter();
   const { ready, db, me, toast, upsertVar, removeVar, importVars, deleteEnv } = useVault();
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
+  const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const env = db.envs.find((item) => item.id === params.envId);
+  usePageTitle(env?.name);
   const project = env?.project ? db.projects.find((item) => item.id === env.project) : null;
   const workspace = env?.ws ? db.workspaces.find((item) => item.id === env.ws) : null;
 
@@ -66,7 +70,19 @@ export function EnvEditor() {
       />
       <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-2xl font-extrabold break-words">{env.name}</h1>
+          <div className="flex items-start gap-1">
+            <h1 className="text-2xl font-extrabold break-words">{env.name}</h1>
+            {edit ? (
+              <button
+                type="button"
+                aria-label="Edit env"
+                className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#8c959f] hover:bg-[#eff2f5] hover:text-fg dark:text-ink-400 dark:hover:bg-ink-800 dark:hover:text-ink-100"
+                onClick={() => setEditing(true)}
+              >
+                <PencilIcon />
+              </button>
+            ) : null}
+          </div>
           <div className={`mt-2 flex flex-wrap items-center gap-2 text-sm ${mute}`}>
             <EnvChip env={env.env} />
             {env.desc ? <span className="break-words">{env.desc}</span> : null}
@@ -206,6 +222,7 @@ export function EnvEditor() {
           />
         ) : null}
       </div>
+      {edit ? <NewEnvModal open={editing} onClose={() => setEditing(false)} projectId={env.project} existing={env} /> : null}
       <ConfirmDialog
         open={confirmDelete}
         title="Delete env"

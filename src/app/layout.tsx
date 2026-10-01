@@ -19,8 +19,12 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EnvVault – Keep your env files safe",
-  description: "Project managers set up workspaces, devs join by invite, and everyone shares the same env files.",
+  title: {
+    default: "EnvVault",
+    template: "%s - EnvVault",
+  },
+  description:
+    "Project managers set up workspaces, devs join by invite, and everyone shares the same env files.",
 };
 
 export const viewport: Viewport = {
@@ -30,7 +34,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${manrope.variable} ${jetbrains.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${manrope.variable} ${jetbrains.variable} h-full antialiased`}
+    >
       <body className="min-h-full">
         <Script id="envvault-theme" strategy="beforeInteractive">
           {themeBootScript}

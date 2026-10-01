@@ -1,5 +1,5 @@
 import { uid } from "@/lib/format";
-import type { DB, EnvFile } from "@/lib/types";
+import type { DB, EnvFile, MemberAccess } from "@/lib/types";
 
 export const DB_KEY = "envvault_db2";
 
@@ -15,11 +15,19 @@ export function seed(): DB {
       name,
       role: role as DB["users"][number]["role"],
       password: "demo1234",
+      phone: "",
+      image: null,
+      active: true,
+      created: null,
+      lastLogin: null,
+      lastDevice: null,
+      logins: [],
     })),
     workspaces: [],
     projects: [],
     envs: [],
     notifs: [],
+    audits: [],
   };
 }
 
@@ -27,6 +35,53 @@ function normalize(db: DB) {
   let changed = false;
   if (!Array.isArray(db.projects)) {
     db.projects = [];
+    changed = true;
+  }
+  if (!Array.isArray(db.audits)) {
+    db.audits = [];
+    changed = true;
+  }
+  for (const user of db.users) {
+    if (typeof user.phone !== "string") {
+      user.phone = "";
+      changed = true;
+    }
+    if (user.image !== null && typeof user.image !== "string") {
+      user.image = null;
+      changed = true;
+    }
+    if (typeof user.active !== "boolean") {
+      user.active = true;
+      changed = true;
+    }
+    if (typeof user.created !== "number") {
+      user.created = null;
+      changed = true;
+    }
+    if (typeof user.lastLogin !== "number") {
+      user.lastLogin = null;
+      changed = true;
+    }
+    if (typeof user.lastDevice !== "string") {
+      user.lastDevice = null;
+      changed = true;
+    }
+    if (!Array.isArray(user.logins)) {
+      user.logins = typeof user.lastLogin === "number" ? [user.lastLogin] : [];
+      changed = true;
+    }
+  }
+  for (const workspace of db.workspaces) {
+    if (!Array.isArray(workspace.editors)) {
+      workspace.editors = [];
+      changed = true;
+    }
+  }
+  for (const note of db.notifs) {
+    if (note.kind !== "invite") continue;
+    const access = (note as { access?: MemberAccess }).access;
+    if (access === "view" || access === "edit") continue;
+    note.access = "view";
     changed = true;
   }
   for (const env of db.envs) {

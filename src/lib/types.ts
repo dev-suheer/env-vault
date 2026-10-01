@@ -1,5 +1,7 @@
 export type Role = "admin" | "pm" | "dev";
 
+export type MemberAccess = "view" | "edit";
+
 export type EnvKind = "Development" | "Staging" | "Production";
 
 export type User = {
@@ -7,6 +9,13 @@ export type User = {
   name: string;
   role: Role;
   password: string;
+  phone: string;
+  image: string | null;
+  active: boolean;
+  created: number | null;
+  lastLogin: number | null;
+  lastDevice: string | null;
+  logins: number[];
 };
 
 export type Workspace = {
@@ -15,6 +24,7 @@ export type Workspace = {
   desc: string;
   pm: string;
   members: string[];
+  editors: string[];
   created: number;
 };
 
@@ -51,6 +61,7 @@ export type InviteNotification = {
   from: string;
   ws: string;
   wsName: string;
+  access: MemberAccess;
   status: "pending" | "accepted" | "declined";
   read: boolean;
   at: number;
@@ -67,10 +78,21 @@ export type InfoNotification = {
 
 export type Notification = InviteNotification | InfoNotification;
 
+export type AuditLog = {
+  id: string;
+  ws: string;
+  at: number;
+  by: string;
+  action: string;
+  subject: string;
+  detail: string;
+};
+
 export type DB = {
   users: User[];
   workspaces: Workspace[];
   projects: Project[];
   envs: EnvFile[];
   notifs: Notification[];
+  audits: AuditLog[];
 };
